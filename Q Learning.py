@@ -17,8 +17,9 @@ LEARNING_RATE = 0.1  # this is anything form 0 to 1, 0.1 is  low but we can deca
 DISCOUNT = 0.95  # (weight) measure of how imp do we find feature actions (how mcuh we value future)
 # maxq value is imp
 EPISODES = 25000
+SHOW_EVERY = 2000
 
-DISCRETE_OS_SIZE = [20] * len(env.observation_space.low)
+DISCRETE_OS_SIZE = [1000000] * len(env.observation_space.low)
 discrete_os_win_size = (env.observation_space.low - env.observation_space.low) / DISCRETE_OS_SIZE
 print(discrete_os_win_size)
 
@@ -34,7 +35,13 @@ def get_discrete_state(state):
     return tuple(discrete_state.astype(np.int))
 
 
-for epsiode in range(EPISODES):
+for episode in range(EPISODES):
+    if episode %  SHOW_EVERY == 0:
+        print(episode)
+        render = True
+    else:
+        render = False
+
     discrete_state = get_discrete_state(env.reset())
     # print(discrete_state)
     # print(np.argmax(q_table[discrete_state]))
@@ -46,6 +53,8 @@ for epsiode in range(EPISODES):
         # print(reward, new_state) # rewards are always -1 until good things happen
         new_discrete_state = get_discrete_state(new_state)  # cause we use this at formulation of new values
         env.render()
+        if render:
+            env.render()
         if not done:
             max_future_q = np.max(q_table[new_discrete_state])
             current_q = q_table[discrete_state + (action,)]
@@ -56,3 +65,4 @@ for epsiode in range(EPISODES):
             q_table[discrete_state + (action,)] = 0
         discrete_state = new_discrete_state
 env.close()
+print("Done")
